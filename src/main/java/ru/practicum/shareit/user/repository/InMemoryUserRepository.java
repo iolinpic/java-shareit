@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.repository;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.exception.UserConflictException;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@Component
+@Repository
 public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Long, User> users = new HashMap<Long, User>();
@@ -20,9 +20,11 @@ public class InMemoryUserRepository implements UserRepository {
         nextId = nextId + 1;
     }
 
-    private boolean isEmailNotUnique(String email, Long updatingUserId) {
+    private void isEmailUnique(String email, Long updatingUserId) {
         User user = users.values().stream().filter(u -> !Objects.equals(u.getId(), updatingUserId)).filter(u -> u.getEmail().equals(email)).findFirst().orElse(null);
-        return user != null;
+        if (user != null) {
+            throw new UserConflictException("Email already exists");
+        }
     }
 
     @Override
@@ -41,9 +43,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User addUser(User user) {
-        if (isEmailNotUnique(user.getEmail(), null)) {
-            throw new UserConflictException("Email already exists");
-        }
+        isEmailUnique(user.getEmail(), null);
         user.setId(nextId);
         users.put(user.getId(), user);
         nextIndex();
@@ -52,9 +52,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User updateUser(User user) {
-        if (isEmailNotUnique(user.getEmail(), user.getId())) {
-            throw new UserConflictException("Email already exists");
-        }
+        isEmailUnique(user.getEmail(), user.getId());
         users.put(user.getId(), user);
         return user;
     }

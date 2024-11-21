@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Repository
 public class InMemoryItemRepository implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<Long, Item>();
     private Long nextId = 0L;
@@ -19,7 +19,7 @@ public class InMemoryItemRepository implements ItemRepository {
 
     @Override
     public List<Item> findAllByOwnerId(Long userId) {
-        return items.values().stream().filter(item -> item.getOwner().getId().equals(userId)).toList();
+        return items.values().stream().filter(item -> userId.equals(item.getOwner().getId())).toList();
     }
 
     @Override

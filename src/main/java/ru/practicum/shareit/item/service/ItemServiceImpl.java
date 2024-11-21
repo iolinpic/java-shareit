@@ -20,25 +20,25 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItemsByOwnerId(Long userId) {
-        userRepository.getUser(userId);
+        userExistCheckAndLoad(userId);
         return itemRepository.findAllByOwnerId(userId).stream().map(ItemMapper::toDto).toList();
     }
 
     @Override
     public List<ItemDto> search(Long userId, String query) {
-        userRepository.getUser(userId);
+        userExistCheckAndLoad(userId);
         return itemRepository.findByText(query).stream().map(ItemMapper::toDto).toList();
     }
 
     @Override
     public ItemDto getItem(Long userId, Long id) {
-        userRepository.getUser(userId);
+        userExistCheckAndLoad(userId);
         return ItemMapper.toDto(itemRepository.findById(id));
     }
 
     @Override
     public ItemDto createItemByUser(Long userId, ItemDto itemDto) {
-        User owner = userRepository.getUser(userId);
+        User owner = userExistCheckAndLoad(userId);
         Item newItem = ItemMapper.fromDto(itemDto);
         newItem.setOwner(owner);
         return ItemMapper.toDto(itemRepository.add(newItem));
@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateUserItem(Long userId, Long itemId, ItemDto itemDto) {
-        User owner = userRepository.getUser(userId);
+        User owner = userExistCheckAndLoad(userId);
         Item item = itemRepository.findById(itemId);
         if (!item.getOwner().equals(owner)) {
             throw new ItemNotFoundException("This user doesn't own this item");
@@ -66,5 +66,9 @@ public class ItemServiceImpl implements ItemService {
             updateItem.setAvailable(item.getAvailable());
         }
         return ItemMapper.toDto(itemRepository.update(updateItem));
+    }
+
+    private User userExistCheckAndLoad(Long userId) {
+        return userRepository.getUser(userId);
     }
 }

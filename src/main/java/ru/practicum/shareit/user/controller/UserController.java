@@ -26,30 +26,30 @@ import java.util.Collection;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping()
-    Collection<UserDto> getAll() {
+    @GetMapping
+    public Collection<UserDto> getAll() {
         return userService.getAll();
     }
 
     @GetMapping("/{id}")
-    UserDto getById(@PathVariable Long id) {
+    public UserDto getById(@PathVariable Long id) {
         return userService.getById(id);
     }
 
-    @PostMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    UserDto create(@Validated({Create.class, Default.class}) @RequestBody UserDto userDto) {
+    public UserDto create(@Validated({Create.class, Default.class}) @RequestBody UserDto userDto) {
         return userService.add(userDto);
     }
 
     @PatchMapping("/{id}")
-    UserDto update(@PathVariable Long id, @Valid @RequestBody UserDto userDto) {
+    public UserDto update(@PathVariable Long id, @Valid @RequestBody UserDto userDto) {
         return userService.update(id, userDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
 
