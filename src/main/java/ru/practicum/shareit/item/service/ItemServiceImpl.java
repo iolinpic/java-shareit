@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -69,6 +70,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private User userExistCheckAndLoad(Long userId) {
-        return userRepository.getUser(userId);
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("This user doesn't exist"));
     }
 }
