@@ -36,7 +36,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItem(Long userId, Long id) {
-//        userExistCheckAndLoad(userId);
         return ItemMapper.toDto(itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("This item doesn't exist")));
     }
 
