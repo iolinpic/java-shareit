@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.exception.BookingValidationException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.predicate.BookingPredicates;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -18,6 +19,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.StreamSupport;
+
 
 @Service
 @RequiredArgsConstructor
@@ -55,9 +58,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto confirmBooking(Long userId, Long id, Boolean confirm) {
-        User user = userExistCheckAndLoad(userId);
+//        User user = userExistCheckAndLoad(userId);
         Booking booking = bookingExistCheckAndLoad(id);
-        if (booking.getItem().getOwner().equals(user) && booking.getStatus().equals(BookingStatus.WAITING)) {
+        if (booking.getItem().getOwner().getId().equals(userId) && booking.getStatus().equals(BookingStatus.WAITING)) {
             if (confirm) {
                 booking.setStatus(BookingStatus.APPROVED);
             } else {
@@ -70,12 +73,19 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getUserBookings(Long userId, BookingState state) {
-        return List.of();
+        User user = userExistCheckAndLoad(userId);
+        Iterable<Booking> result = bookingRepository.findAll(BookingPredicates.bookerAndState(user.getId(), state),
+                BookingPredicates.orderByStart());
+        return StreamSupport.stream(result.spliterator(), false).map(BookingMapper::toDto).toList();
     }
+
 
     @Override
     public List<BookingDto> getUserItemBookings(Long userId, BookingState state) {
-        return List.of();
+        User user = userExistCheckAndLoad(userId);
+        Iterable<Booking> result = bookingRepository.findAll(BookingPredicates.itemOwnerAndState(user.getId(), state),
+                BookingPredicates.orderByStart());
+        return StreamSupport.stream(result.spliterator(), false).map(BookingMapper::toDto).toList();
     }
 
     private Item itemExistCheckAndLoad(Long itemId) {
