@@ -2,7 +2,12 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.predicate.BookingPredicates;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemOwnerDto;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -11,18 +16,38 @@ import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
-    public List<ItemDto> getItemsByOwnerId(Long userId) {
+    public List<ItemOwnerDto> getItemsByOwnerId(Long userId) {
         userExistCheckAndLoad(userId);
-        return itemRepository.findByOwnerId(userId).stream().map(ItemMapper::toDto).toList();
+        Iterable<Booking> bookings = bookingRepository.findAll(BookingPredicates.itemOwnerAndState(userId, BookingState.ALL), BookingPredicates.orderByStart());
+        return itemRepository.findByOwnerId(userId).stream().map(ItemMapper::toOwnerDto)
+                .peek((item) -> {
+                    List<Booking> itemBooking = StreamSupport.stream(bookings.spliterator(), false)
+                            .filter(b -> b.getItem().getId().equals(item.getId())).toList();
+                    Booking previousBooking = itemBooking.stream()
+                            .filter(b -> b.getStart().isBefore(LocalDateTime.now()))
+                            .findFirst().orElse(null);
+                    Booking nextBooking = itemBooking.stream()
+                            .filter(b -> b.getStart().isAfter(LocalDateTime.now())).toList().getLast();
+                    if (previousBooking != null) {
+                        item.setLastBooking(previousBooking.getStart());
+                    }
+                    if (nextBooking != null) {
+                        item.setNextBooking(nextBooking.getStart());
+                    }
+                })
+                .toList();
     }
 
     @Override
