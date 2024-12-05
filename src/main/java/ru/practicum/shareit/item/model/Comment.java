@@ -42,7 +42,6 @@ public class Comment {
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User author;
-    
     @Column(nullable = false)
     private LocalDateTime created;
 }
