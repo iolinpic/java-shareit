@@ -16,28 +16,32 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "items")
+@Table(name = "comments")
 @AllArgsConstructor
 @Builder
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String name;
-    @Column(nullable = false)
-    private String description;
-    @Column(nullable = false)
-    private Boolean available;
+    private String text;
+
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    @ToString.Exclude
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    private User owner;
-//    private ItemRequest request;
+    private User author;
+    @Column(nullable = false)
+    private LocalDateTime created;
 }
