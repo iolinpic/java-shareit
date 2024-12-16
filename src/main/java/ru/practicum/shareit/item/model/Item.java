@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 @Getter
@@ -39,5 +40,8 @@ public class Item {
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User owner;
-//    private ItemRequest request;
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    @ToString.Exclude
+    private ItemRequest request;
 }
