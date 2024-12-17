@@ -11,5 +11,5 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
     ItemRequest findItemRequestById(Long requestId);
 
-    List<ItemRequest> findItemRequestByRequesterId(Long userId,  Sort sort);
+    List<ItemRequest> findItemRequestByRequesterId(Long userId, Sort sort);
 }
