@@ -18,6 +18,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -33,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public List<ItemOwnerDto> getItemsByOwnerId(Long userId) {
@@ -83,6 +86,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItemByUser(Long userId, ItemDto itemDto) {
         User owner = userExistCheckAndLoad(userId);
         Item newItem = ItemMapper.fromDto(itemDto);
+        newItem.setRequest(requestCheckAndLoad(itemDto.getRequestId()));
         newItem.setOwner(owner);
         return ItemMapper.toDto(itemRepository.save(newItem));
     }
@@ -127,5 +131,12 @@ public class ItemServiceImpl implements ItemService {
 
     private User userExistCheckAndLoad(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("This user doesn't exist"));
+    }
+
+    private ItemRequest requestCheckAndLoad(Long requestId) {
+        if (requestId == null) {
+            return null;
+        }
+        return itemRequestRepository.findById(requestId).orElse(null);
     }
 }
