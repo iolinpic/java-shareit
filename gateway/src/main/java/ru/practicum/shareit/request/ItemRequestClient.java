@@ -25,11 +25,11 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createItemRequest(long userId, ItemRequestDto itemRequestDto) {
-        return post("/", userId, itemRequestDto);
+        return post("", userId, itemRequestDto);
     }
 
     public ResponseEntity<Object> getAllUserItemRequest(long userId) {
-        return get("/", userId);
+        return get("", userId);
     }
 
     public ResponseEntity<Object> getAllItemRequest(long userId) {

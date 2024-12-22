@@ -28,7 +28,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> itemsByOwner(long userId) {
-        return get("/", userId);
+        return get("", userId);
     }
 
     public ResponseEntity<Object> search(long userId, String query) {
@@ -43,7 +43,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createItem(long userId, ItemDto itemDto) {
-        return post("/", userId, itemDto);
+        return post("", userId, itemDto);
     }
 
     public ResponseEntity<Object> updateItem(long userId, Long itemId, ItemDto itemDto) {

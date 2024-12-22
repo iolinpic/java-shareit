@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class ItemShortDto {
-    Long id;
-    String name;
-    Long ownerId;
+    private Long id;
+    private String name;
+    private Long ownerId;
 }
