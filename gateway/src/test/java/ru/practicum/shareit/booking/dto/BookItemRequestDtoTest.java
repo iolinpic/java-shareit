@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
