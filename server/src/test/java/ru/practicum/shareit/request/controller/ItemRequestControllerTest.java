@@ -92,7 +92,7 @@ class ItemRequestControllerTest {
 
     @Test
     void singleItemRequest() throws Exception {
-        when(itemRequestService.getById(1L,1L)).thenReturn(dto);
+        when(itemRequestService.getById(1L, 1L)).thenReturn(dto);
         mvc.perform(get("/requests/1")
                         .header("X-Sharer-User-Id", 1L)
                         .characterEncoding(StandardCharsets.UTF_8)

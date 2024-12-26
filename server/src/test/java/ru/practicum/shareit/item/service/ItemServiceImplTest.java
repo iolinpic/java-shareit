@@ -109,8 +109,8 @@ class ItemServiceImplTest {
         LocalDateTime nowPlusDay = now.minusDays(1);
         BookingDto bookingDto = new BookingDto(null, now, nowPlusDay,
                 itemDto.getId(), null, null, null);
-        bookingDto = bookingService.createBooking(userDto.getId(),bookingDto);
-        bookingService.confirmBooking(userDto.getId(),bookingDto.getId(),true);
+        bookingDto = bookingService.createBooking(userDto.getId(), bookingDto);
+        bookingService.confirmBooking(userDto.getId(), bookingDto.getId(), true);
 
         comment = itemService.createComment(userDto.getId(), itemDto.getId(), comment);
 
