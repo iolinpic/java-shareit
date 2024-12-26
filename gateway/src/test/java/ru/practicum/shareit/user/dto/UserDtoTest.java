@@ -7,11 +7,11 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import ru.practicum.shareit.user.dto.Create;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JsonTest
 class UserDtoTest {
@@ -29,7 +29,7 @@ class UserDtoTest {
                 .email("email@email.com")
                 .name("name")
                 .build();
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(payload,Create.class);
+        Set<ConstraintViolation<UserDto>> violations = validator.validate(payload, Create.class);
         assertTrue(violations.isEmpty());
     }
 

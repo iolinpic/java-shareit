@@ -10,7 +10,9 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @JsonTest
 class ItemRequestDtoTest {
     private Validator validator;
