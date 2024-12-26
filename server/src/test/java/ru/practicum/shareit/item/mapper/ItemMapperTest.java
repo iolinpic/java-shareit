@@ -5,10 +5,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ItemMapperTest {
 
@@ -55,6 +56,6 @@ class ItemMapperTest {
         assertNotNull(dto);
         assertEquals(item.getId(), dto.getId());
         assertEquals(item.getName(), dto.getName());
-        assertEquals(user.getId(),dto.getOwnerId());
+        assertEquals(user.getId(), dto.getOwnerId());
     }
 }
