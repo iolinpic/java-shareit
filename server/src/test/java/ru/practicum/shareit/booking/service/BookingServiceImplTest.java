@@ -50,10 +50,10 @@ class BookingServiceImplTest {
         LocalDateTime nowPlusDay = now.plusDays(1);
         BookingDto bookingDto = new BookingDto(null, now, nowPlusDay,
                 itemDto.getId(), null, null, null);
-        bookingService.createBooking(userDto.getId(), bookingDto);
+        bookingDto = bookingService.createBooking(userDto.getId(), bookingDto);
 
-        TypedQuery<Booking> query = entityManager.createQuery("SELECT b from Booking as b where b.start = :start", Booking.class);
-        Booking booking = query.setParameter("start", now).getSingleResult();
+        TypedQuery<Booking> query = entityManager.createQuery("SELECT b from Booking as b where b.id = :id", Booking.class);
+        Booking booking = query.setParameter("id",bookingDto.getId() ).getSingleResult();
 
         assertThat(booking, notNullValue());
         assertThat(booking.getStart(), equalTo(bookingDto.getStart()));
