@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -140,12 +139,13 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void wrongIdBookingConfirmFail(){
+    void wrongIdBookingConfirmFail() {
         assertThrows(BookingNotFoundException.class,
                 () -> bookingService.confirmBooking(userDto.getId(), -1L, true));
     }
+
     @Test
-    void wrongItemOwnerBookingConfirmFail(){
+    void wrongItemOwnerBookingConfirmFail() {
         UserDto user = userService.add(new UserDto(null, "john2", "j32@example.ru"));
         ItemDto item = itemService.createItemByUser(user.getId(), new ItemDto(null,
                 "item", "description", true,

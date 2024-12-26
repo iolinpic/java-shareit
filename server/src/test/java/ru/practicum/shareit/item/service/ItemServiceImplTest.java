@@ -95,8 +95,8 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void createItemWithRequest(){
-        ItemRequestDto request = new ItemRequestDto(null,"request",null,null,null);
+    void createItemWithRequest() {
+        ItemRequestDto request = new ItemRequestDto(null, "request", null, null, null);
         request = itemRequestService.create(userDto.getId(), request);
         ItemDto item = new ItemDto(null, "item uniq", "desc",
                 true, null, null, null, request.getId());
