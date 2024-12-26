@@ -67,15 +67,26 @@ class UserServiceImplTest {
 
     @Test
     void update() {
-        UserDto updatedUser = new UserDto(userDto.getId(), "john2", userDto.getEmail());
+        UserDto updatedUser = new UserDto(userDto.getId(), "john", null);
 
         updatedUser = userService.update(userDto.getId(), updatedUser);
 
-        TypedQuery<User> query = entityManager.createQuery("SELECT u from User as u where u.email = :email", User.class);
-        User result = query.setParameter("email", updatedUser.getEmail()).getSingleResult();
+        TypedQuery<User> query = entityManager.createQuery("SELECT u from User as u where u.id = :id", User.class);
+        User result = query.setParameter("id", updatedUser.getId()).getSingleResult();
 
         assertNotNull(result);
         assertEquals(result.getName(), updatedUser.getName());
+        assertEquals(result.getEmail(), userDto.getEmail());
+
+        updatedUser.setName(null);
+        updatedUser.setEmail("john2@example.ru");
+
+        updatedUser = userService.update(userDto.getId(), updatedUser);
+
+        result = query.setParameter("id", updatedUser.getId()).getSingleResult();
+
+        assertNotNull(result);
+        assertEquals(result.getName(), userDto.getName());
         assertEquals(result.getEmail(), updatedUser.getEmail());
     }
 

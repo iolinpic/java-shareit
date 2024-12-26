@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.predicate.BookingPredicates;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemOwnerDto;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -38,27 +37,24 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public List<ItemOwnerDto> getItemsByOwnerId(Long userId) {
+    public List<ItemDto> getItemsByOwnerId(Long userId) {
         userExistCheckAndLoad(userId);
 
         Iterable<Booking> bookings = bookingRepository.findAll(BookingPredicates.itemOwnerAndState(userId, BookingState.ALL), BookingPredicates.orderByStart());
-        return itemRepository.findByOwnerId(userId).stream().map(ItemMapper::toOwnerDto)
+        return itemRepository.findByOwnerId(userId).stream().map(ItemMapper::toDto)
                 .peek((item) -> {
                     List<Booking> itemBooking = StreamSupport.stream(bookings.spliterator(), false)
                             .filter(b -> b.getItem().getId().equals(item.getId())).toList();
-                    Booking previousBooking = itemBooking.stream()
-                            .filter(b -> b.getStart().isBefore(LocalDateTime.now()))
+                    LocalDateTime previousBooking = itemBooking.stream()
+                            .map(Booking::getStart)
+                            .filter(start -> start.isBefore(LocalDateTime.now()))
                             .findFirst().orElse(null);
-                    Booking nextBooking = itemBooking.reversed().stream()
-                            .filter(b -> b.getStart().isAfter(LocalDateTime.now())).findFirst().orElse(null);
+                    LocalDateTime nextBooking = itemBooking.reversed().stream()
+                            .map(Booking::getStart).filter(start -> start.isAfter(LocalDateTime.now())).findFirst().orElse(null);
 
+                    item.setLastBooking(previousBooking);
+                    item.setNextBooking(nextBooking);
 
-                    if (previousBooking != null) {
-                        item.setLastBooking(previousBooking.getStart());
-                    }
-                    if (nextBooking != null) {
-                        item.setNextBooking(nextBooking.getStart());
-                    }
                     List<Comment> comments = commentRepository.findByItemId(item.getId());
                     item.setComments(comments.stream().map(CommentMapper::toDto).toList());
                 })
@@ -100,9 +96,6 @@ public class ItemServiceImpl implements ItemService {
         }
         Item updateItem = ItemMapper.fromDto(itemDto);
         updateItem.setOwner(owner);
-        if (updateItem.getId() == null) {
-            updateItem.setId(item.getId());
-        }
         if (updateItem.getName() == null) {
             updateItem.setName(item.getName());
         }

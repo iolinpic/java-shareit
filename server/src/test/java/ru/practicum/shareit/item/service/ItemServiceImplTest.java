@@ -12,7 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemOwnerDto;
+import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -24,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -46,7 +47,7 @@ class ItemServiceImplTest {
 
     @Test
     void getItemsByOwnerId() {
-        List<ItemOwnerDto> items = itemService.getItemsByOwnerId(userDto.getId());
+        List<ItemDto> items = itemService.getItemsByOwnerId(userDto.getId());
 
         assertNotNull(items);
         assertEquals(1, items.size());
@@ -60,6 +61,10 @@ class ItemServiceImplTest {
         assertNotNull(items);
         assertEquals(1, items.size());
         assertEquals(itemDto.getId(), items.getFirst().getId());
+
+        items = itemService.search(userDto.getId(), "");
+        assertNotNull(items);
+        assertEquals(0, items.size());
     }
 
     @Test
@@ -87,19 +92,50 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateUserItem() {
+    void wrongUserUpdateFal() {
+        UserDto wrongUser = userService.add(new UserDto(null, "john3", "j3@example.ru"));
+
         ItemDto item = new ItemDto(itemDto.getId(), itemDto.getName(), itemDto.getDescription(),
+                false, null, null, null, null);
+
+
+        assertThrows(ItemNotFoundException.class,
+                () -> itemService.updateUserItem(wrongUser.getId(), itemDto.getId(), item));
+    }
+
+    @Test
+    void updateUserItem() {
+        ItemDto item = new ItemDto(itemDto.getId(), null, null,
                 false, null, null, null, null);
 
         item = itemService.updateUserItem(userDto.getId(), itemDto.getId(), item);
         TypedQuery<Item> query = entityManager
-                .createQuery("SELECT i from Item as i where i.name = :name", Item.class);
-        Item result = query.setParameter("name", item.getName()).getSingleResult();
+                .createQuery("SELECT i from Item as i where i.id = :id", Item.class);
+        Item result = query.setParameter("id", item.getId()).getSingleResult();
 
         assertNotNull(result);
         assertEquals(itemDto.getId(), result.getId());
-        assertEquals(itemDto.getName(), result.getName());
         assertFalse(result.getAvailable());
+
+        item = new ItemDto(itemDto.getId(), "new item", null,
+                null, null, null, null, null);
+
+        item = itemService.updateUserItem(userDto.getId(), itemDto.getId(), item);
+        result = query.setParameter("id", item.getId()).getSingleResult();
+
+        assertNotNull(result);
+        assertEquals(itemDto.getId(), result.getId());
+        assertEquals(item.getName(), result.getName());
+
+        item = new ItemDto(itemDto.getId(), null, "new description",
+                null, null, null, null, null);
+
+        item = itemService.updateUserItem(userDto.getId(), itemDto.getId(), item);
+        result = query.setParameter("id", item.getId()).getSingleResult();
+
+        assertNotNull(result);
+        assertEquals(itemDto.getId(), result.getId());
+        assertEquals(item.getDescription(), result.getDescription());
     }
 
     @Test

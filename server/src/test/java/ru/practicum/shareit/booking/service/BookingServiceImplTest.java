@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.exception.BookingValidationException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -23,6 +24,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -45,6 +47,26 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void wrongIntervalTestFail() {
+        LocalDateTime now = LocalDateTime.now();
+        BookingDto bookingDto = new BookingDto(null, now, now,
+                itemDto.getId(), null, null, null);
+        assertThrows(BookingValidationException.class, () -> bookingService.createBooking(userDto.getId(), bookingDto));
+    }
+
+    @Test
+    void itemAvailableFalseTestFail() {
+        ItemDto wrongItem = itemService.createItemByUser(userDto.getId(), new ItemDto(null,
+                "item", "description", false,
+                null, null, null, null));
+        LocalDateTime now = LocalDateTime.now();
+        BookingDto bookingDto = new BookingDto(null, now, now.plusDays(1),
+                wrongItem.getId(), null, null, null);
+
+        assertThrows(BookingValidationException.class, () -> bookingService.createBooking(userDto.getId(), bookingDto));
+    }
+
+    @Test
     void createBooking() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusDay = now.plusDays(1);
@@ -58,6 +80,18 @@ class BookingServiceImplTest {
         assertThat(booking, notNullValue());
         assertThat(booking.getStart(), equalTo(bookingDto.getStart()));
         assertThat(booking.getEnd(), equalTo(bookingDto.getEnd()));
+    }
+
+    @Test
+    void wrongUserGetFail() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusDay = now.plusDays(1);
+        BookingDto bookingDto = bookingService.createBooking(userDto.getId(), new BookingDto(null, now, nowPlusDay,
+                itemDto.getId(), null, null, null));
+        UserDto wrongUser = userService.add(new UserDto(null, "john3", "j3@example.ru"));
+
+        assertThrows(BookingValidationException.class,
+                () -> bookingService.getBooking(wrongUser.getId(), bookingDto.getId()));
     }
 
     @Test
@@ -76,6 +110,18 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void wrongUserConfirmFail() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusDay = now.plusDays(1);
+        BookingDto bookingDto = bookingService.createBooking(userDto.getId(), new BookingDto(null, now, nowPlusDay,
+                itemDto.getId(), null, null, null));
+        UserDto wrongUser = userService.add(new UserDto(null, "john3", "j3@example.ru"));
+
+        assertThrows(BookingValidationException.class,
+                () -> bookingService.confirmBooking(wrongUser.getId(), bookingDto.getId(), true));
+    }
+
+    @Test
     void confirmBooking() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusDay = now.plusDays(1);
@@ -88,6 +134,16 @@ class BookingServiceImplTest {
         assertThat(result, notNullValue());
         assertThat(result.getId(), equalTo(bookingDto.getId()));
         assertThat(result.getStatus(), equalTo(BookingStatus.APPROVED));
+
+        bookingDto = new BookingDto(null, now, nowPlusDay,
+                itemDto.getId(), null, null, null);
+        bookingDto = bookingService.createBooking(userDto.getId(), bookingDto);
+
+        result = bookingService.confirmBooking(userDto.getId(), bookingDto.getId(), false);
+        assertThat(result, notNullValue());
+        assertThat(result.getId(), equalTo(bookingDto.getId()));
+        assertThat(result.getStatus(), equalTo(BookingStatus.REJECTED));
+
     }
 
     @Test

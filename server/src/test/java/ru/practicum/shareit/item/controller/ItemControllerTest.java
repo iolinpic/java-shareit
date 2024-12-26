@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemOwnerDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.nio.charset.StandardCharsets;
@@ -39,7 +38,6 @@ class ItemControllerTest {
     private MockMvc mvc;
 
     private ItemDto dto;
-    private ItemOwnerDto ownerDto;
 
     @BeforeEach
     void setUp() {
@@ -57,28 +55,18 @@ class ItemControllerTest {
                 List.of(),
                 null
         );
-        ownerDto = new ItemOwnerDto(
-                1L,
-                "name",
-                "description",
-                true,
-                null,
-                null,
-                List.of(),
-                null
-        );
     }
 
     @Test
     void getItemsByOwnerId() throws Exception {
-        when(service.getItemsByOwnerId(1L)).thenReturn(List.of(ownerDto));
+        when(service.getItemsByOwnerId(1L)).thenReturn(List.of(dto));
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1L)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(mapper.writeValueAsString(List.of(ownerDto))));
+                .andExpect(content().json(mapper.writeValueAsString(List.of(dto))));
     }
 
     @Test
