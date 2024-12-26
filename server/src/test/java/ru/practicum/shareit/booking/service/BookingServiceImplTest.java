@@ -53,7 +53,7 @@ class BookingServiceImplTest {
         bookingDto = bookingService.createBooking(userDto.getId(), bookingDto);
 
         TypedQuery<Booking> query = entityManager.createQuery("SELECT b from Booking as b where b.id = :id", Booking.class);
-        Booking booking = query.setParameter("id",bookingDto.getId() ).getSingleResult();
+        Booking booking = query.setParameter("id", bookingDto.getId()).getSingleResult();
 
         assertThat(booking, notNullValue());
         assertThat(booking.getStart(), equalTo(bookingDto.getStart()));
