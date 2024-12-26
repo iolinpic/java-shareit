@@ -36,13 +36,12 @@ public class BookingServiceImpl implements BookingService {
         }
         User user = userExistCheckAndLoad(userId);
         Item item = itemExistCheckAndLoad(bookingDto.getItemId());
-        Booking booking = Booking.builder()
-                .start(bookingDto.getStart())
-                .end(bookingDto.getEnd())
-                .item(item)
-                .status(BookingStatus.WAITING)
-                .booker(user)
-                .build();
+        Booking booking = new Booking();
+        booking.setStart(bookingDto.getStart());
+        booking.setEnd(bookingDto.getEnd());
+        booking.setBooker(user);
+        booking.setItem(item);
+        booking.setStatus(BookingStatus.WAITING);
         return BookingMapper.toDto(bookingRepository.save(booking));
     }
 

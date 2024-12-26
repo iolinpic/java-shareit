@@ -113,12 +113,11 @@ public class ItemServiceImpl implements ItemService {
         Booking booking = bookingRepository
                 .findOneByStatusAndBookerIdAndItemIdAndEndBefore(BookingStatus.APPROVED, userId, itemId, LocalDateTime.now())
                 .orElseThrow(() -> new BookingValidationException("This booking doesn't exist"));
-        Comment comment = Comment.builder()
-                .text(commentDto.getText())
-                .author(booking.getBooker())
-                .item(booking.getItem())
-                .created(LocalDateTime.now())
-                .build();
+        Comment comment =  new Comment();
+                comment.setText(commentDto.getText());
+                comment.setAuthor(booking.getBooker());
+                comment.setCreated(LocalDateTime.now());
+                comment.setItem(booking.getItem());
         return CommentMapper.toDto(commentRepository.save(comment));
     }
 

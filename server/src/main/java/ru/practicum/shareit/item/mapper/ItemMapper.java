@@ -6,12 +6,12 @@ import ru.practicum.shareit.item.model.Item;
 
 public class ItemMapper {
     public static ItemDto toDto(Item item) {
-        ItemDto iDto = ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
+        ItemDto iDto = new ItemDto();
+        iDto.setId(item.getId());
+        iDto.setName(item.getName());
+        iDto.setDescription(item.getDescription());
+        iDto.setAvailable(item.getAvailable());
+
         if (item.getRequest() != null) {
             iDto.setRequestId(item.getRequest().getId());
         }
@@ -20,19 +20,15 @@ public class ItemMapper {
 
 
     public static Item fromDto(ItemDto dto) {
-        return Item.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .available(dto.getAvailable())
-                .build();
+        Item item = new Item();
+        item.setId(dto.getId());
+        item.setName(dto.getName());
+        item.setDescription(dto.getDescription());
+        item.setAvailable(dto.getAvailable());
+        return item;
     }
 
     public static ItemShortDto toShortDto(Item item) {
-        return ItemShortDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .ownerId(item.getOwner().getId())
-                .build();
+        return new ItemShortDto(item.getId(), item.getName(), item.getOwner().getId());
     }
 }

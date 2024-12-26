@@ -18,7 +18,6 @@ import lombok.ToString;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "users")
 public class User {

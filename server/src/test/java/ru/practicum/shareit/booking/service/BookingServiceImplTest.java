@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.exception.BookingNotFoundException;
 import ru.practicum.shareit.booking.exception.BookingValidationException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -95,6 +97,22 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void getBookingViaItemOwner() {
+        UserDto user = userService.add(new UserDto(null, "john23", "j322@example.ru"));
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nowPlusDay = now.plusDays(1);
+        BookingDto bookingDto = new BookingDto(null, now, nowPlusDay,
+                itemDto.getId(), null, null, null);
+        bookingDto = bookingService.createBooking(user.getId(), bookingDto);
+
+        BookingDto result = bookingService.getBooking(userDto.getId(), bookingDto.getId());
+
+        assertThat(result, notNullValue());
+        assertThat(result.getId(), equalTo(bookingDto.getId()));
+        assertThat(result.getBooker(), equalTo(user));
+    }
+
+    @Test
     void getBooking() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nowPlusDay = now.plusDays(1);
@@ -119,6 +137,22 @@ class BookingServiceImplTest {
 
         assertThrows(BookingValidationException.class,
                 () -> bookingService.confirmBooking(wrongUser.getId(), bookingDto.getId(), true));
+    }
+
+    @Test
+    void wrongIdBookingConfirmFail(){
+        assertThrows(BookingNotFoundException.class,
+                () -> bookingService.confirmBooking(userDto.getId(), -1L, true));
+    }
+    @Test
+    void wrongItemOwnerBookingConfirmFail(){
+        UserDto user = userService.add(new UserDto(null, "john2", "j32@example.ru"));
+        ItemDto item = itemService.createItemByUser(user.getId(), new ItemDto(null,
+                "item", "description", true,
+                null, null, null, null));
+        assertThrows(BookingNotFoundException.class,
+                () -> bookingService.confirmBooking(userDto.getId(), item.getId(), true));
+
     }
 
     @Test
@@ -159,6 +193,26 @@ class BookingServiceImplTest {
         assertThat(result, notNullValue());
         assertThat(result.size(), equalTo(1));
         assertThat(result.getFirst().getId(), equalTo(bookingDto.getId()));
+
+        result = bookingService.getUserBookings(userDto.getId(), BookingState.CURRENT);
+        assertThat(result, notNullValue());
+        assertThat(result.size(), equalTo(1));
+
+        result = bookingService.getUserBookings(userDto.getId(), BookingState.FUTURE);
+        assertThat(result, notNullValue());
+        assertThat(result.size(), equalTo(0));
+
+        result = bookingService.getUserBookings(userDto.getId(), BookingState.PAST);
+        assertThat(result, notNullValue());
+        assertThat(result.size(), equalTo(0));
+
+        result = bookingService.getUserBookings(userDto.getId(), BookingState.WAITING);
+        assertThat(result, notNullValue());
+        assertThat(result.size(), equalTo(1));
+
+        result = bookingService.getUserBookings(userDto.getId(), BookingState.REJECTED);
+        assertThat(result, notNullValue());
+        assertThat(result.size(), equalTo(0));
     }
 
     @Test

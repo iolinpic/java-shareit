@@ -15,12 +15,11 @@ class CommentDtoTest {
 
     @Test
     public void testSerialize() throws Exception {
-        final CommentDto userDto = CommentDto.builder()
-                .id(1L)
-                .text("test")
-                .authorName("author")
-                .build();
-        JsonContent<CommentDto> json = jacksonTester.write(userDto);
+        final CommentDto dto = new CommentDto();
+        dto.setId(1L);
+        dto.setText("This is a comment");
+        dto.setAuthorName("Author");
+        JsonContent<CommentDto> json = jacksonTester.write(dto);
         assertThat(json).extractingJsonPathNumberValue("$.id").isEqualTo(1);
     }
 

@@ -28,11 +28,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto create(Long userId, ItemRequestDto dto) {
         User user = userExistCheckAndLoad(userId);
-        ItemRequest itemRequest = ItemRequest.builder()
-                .description(dto.getDescription())
-                .requester(user)
-                .created(LocalDateTime.now())
-                .build();
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription(dto.getDescription());
+        itemRequest.setRequester(user);
+        itemRequest.setCreated(LocalDateTime.now());
         return ItemRequestMapper.toDto(itemRequestRepository.save(itemRequest));
     }
 

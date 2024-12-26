@@ -15,6 +15,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -34,6 +36,7 @@ class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
     private final BookingService bookingService;
+    private final ItemRequestService itemRequestService;
 
     private UserDto userDto;
     private ItemDto itemDto;
@@ -89,6 +92,23 @@ class ItemServiceImplTest {
         assertNotNull(result);
         assertEquals(item.getId(), result.getId());
         assertEquals(item.getName(), result.getName());
+    }
+
+    @Test
+    void createItemWithRequest(){
+        ItemRequestDto request = new ItemRequestDto(null,"request",null,null,null);
+        request = itemRequestService.create(userDto.getId(), request);
+        ItemDto item = new ItemDto(null, "item uniq", "desc",
+                true, null, null, null, request.getId());
+        item = itemService.createItemByUser(userDto.getId(), item);
+
+        TypedQuery<Item> query = entityManager
+                .createQuery("SELECT i from Item as i where i.id = :id", Item.class);
+        Item result = query.setParameter("id", item.getId()).getSingleResult();
+
+        assertNotNull(result);
+        assertEquals(item.getId(), result.getId());
+        assertEquals(request.getId(), result.getRequest().getId());
     }
 
     @Test

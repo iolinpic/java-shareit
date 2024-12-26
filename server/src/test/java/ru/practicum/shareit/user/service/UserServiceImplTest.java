@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -39,6 +40,11 @@ class UserServiceImplTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(userDto.getId(), users.getFirst().getId());
+    }
+
+    @Test
+    void getByIdFailsWithWrongId() {
+        assertThrows(UserNotFoundException.class, () -> userService.getById(-1L));
     }
 
     @Test
