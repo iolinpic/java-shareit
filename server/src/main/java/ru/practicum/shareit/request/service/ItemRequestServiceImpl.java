@@ -23,7 +23,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    Sort sortCreatedDesc = Sort.by(Sort.Direction.DESC, "created");
+    private final Sort sortCreatedDesc = Sort.by(Sort.Direction.DESC, "created");
 
     @Override
     public ItemRequestDto create(Long userId, ItemRequestDto dto) {
