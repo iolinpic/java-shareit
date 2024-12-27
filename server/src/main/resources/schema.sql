@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS items
     description TEXT         NOT NULL,
     available   BOOLEAN      NOT NULL DEFAULT TRUE,
     user_id     BIGINT       NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    request_id  BIGINT       REFERENCES requests (id) ON DELETE SET NULL
+    request_id  BIGINT       REFERENCES item_requests (id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS bookings
